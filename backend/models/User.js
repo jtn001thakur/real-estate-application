@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const bcrypt = require('bcrypt')
 
 const userSchema = new mongoose.Schema(
   {
@@ -27,14 +28,27 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["buyer", "seller", "admin", "admin"],
+      enum: ["buyer", "seller", "admin"],
     },
     phone: {
       type: Number,
       match: [/^\+?[\d\s-()]+$/, "Provide a valid Phone number"],
     },
   },
-  { timestames: true }
+  { timestamps: true }
 );
+
+userSchema.pre("save", async function(next) {
+  if (!this.isModified("password")) {
+    return next();
+  }
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
 
 module.exports = mongoose.model("User", userSchema);

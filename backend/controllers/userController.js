@@ -36,7 +36,8 @@ const createUser = async (req, res) => {
         message: "email already exists",
       });
     }
-    const data = await User.create({
+
+    const userData = await User.create({
       userName,
       email,
       password,
@@ -45,7 +46,7 @@ const createUser = async (req, res) => {
     });
     return res.status(201).json({
       success: true,
-      data: data,
+      data: userData,
       message: "user created successfully",
     });
   } catch (err) {
